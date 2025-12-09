@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import RegisterForm from "./register-form";
 
 export const metadata: Metadata = {
   title: "Anota | Registro",
@@ -6,8 +7,8 @@ export const metadata: Metadata = {
 
 export default function Register() {
   return (
-    <section>
-      <h1>Registro</h1>
+    <section className="flex h-full w-full flex-col items-center justify-center gap-4 px-4">
+      <RegisterForm />
     </section>
   );
 }

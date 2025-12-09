@@ -1,13 +1,21 @@
 import "./globals.css";
-import { Sour_Gummy } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { Metadata } from "next";
 
-const sourGummy = Sour_Gummy({
+const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Bem-vindo ao Anota!",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -17,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <body className={`${sourGummy.className} antialiased`}>{children}</body>
+      <body className={`${montserrat.className} h-screen w-screen antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }
