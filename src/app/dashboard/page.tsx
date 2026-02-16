@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Anota | Dashboard",
+  title: "TaskFlow | Dashboard",
 };
 
 export default function Dashboard() {

@@ -12,24 +12,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { sucessToast, errorToast } from "@/lib/toast";
-import { auth, provider } from "@/firebase/firebase-config";
-import mapFirebaseUser from "@/lib/map-firebase-user";
+import { auth } from "@/firebase/firebase-config";
+import { useAuth } from "@/context/auth-contex";
 
 import { useRouter } from "next/navigation";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 
 import { FcGoogle } from "react-icons/fc";
 
 export default function RegisterForm() {
   const [registerLoading, setRegisterLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   const router = useRouter();
+  const { googleLogin, googleLoading } = useAuth();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,31 +88,13 @@ export default function RegisterForm() {
     }
   };
 
-  const handleGoogleRegister = async () => {
-    setGoogleLoading(true);
-    try {
-      const userCredential = await signInWithPopup(auth, provider);
-      const user = mapFirebaseUser(userCredential.user);
-
-      localStorage.setItem("user", JSON.stringify(user));
-
-      router.push("/dashboard");
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
   return (
     <>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Registre-se</CardTitle>
           <CardDescription>
-            Crie uma conta para começar a utilizar o Anota!
+            Crie uma conta para começar a utilizar o TaskFlow!
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -141,7 +119,6 @@ export default function RegisterForm() {
               variant="default"
               type="submit"
               form="register-form"
-              disabled={registerLoading}
               loading={registerLoading}
             >
               {registerLoading ? "Carregando..." : "Registrar"}
@@ -150,11 +127,7 @@ export default function RegisterForm() {
         </CardFooter>
       </Card>
 
-      <Button
-        variant="outline"
-        onClick={handleGoogleRegister}
-        disabled={googleLoading}
-      >
+      <Button variant="outline" onClick={googleLogin} disabled={googleLoading}>
         <FcGoogle /> Entrar com Google
       </Button>
 

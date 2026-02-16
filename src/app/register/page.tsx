@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import RegisterForm from "./register-form";
 
 export const metadata: Metadata = {
-  title: "Anota | Registro",
+  title: "TaskFlow | Registro",
 };
 
 export default function Register() {

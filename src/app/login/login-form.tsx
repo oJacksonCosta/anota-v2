@@ -12,19 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-contex";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { FcGoogle } from "react-icons/fc";
 
 export default function LoginForm() {
-  const { login, loginLoading } = useAuth();
-
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const { login, loginLoading, googleLogin, googleLoading } = useAuth();
+  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -52,16 +49,38 @@ export default function LoginForm() {
         </CardContent>
         <CardFooter>
           <CardAction>
-            <Button variant="default" form="login-form" disabled={loginLoading}>
+            <Button variant="default" form="login-form" loading={loginLoading}>
               Entrar
             </Button>
           </CardAction>
         </CardFooter>
       </Card>
 
-      <Button variant="outline" disabled={googleLoading}>
+      <Button variant="outline" disabled={googleLoading} onClick={googleLogin}>
         <FcGoogle /> Entrar com Google
       </Button>
+
+      <div className="mt-2 flex items-center gap-2">
+        <p className="text-sm text-slate-400">Ainda não possui uma conta?</p>
+        <Button
+          variant="link"
+          className="h-auto p-0"
+          onClick={() => router.push("/register")}
+        >
+          Registrar
+        </Button>
+      </div>
+
+      <div className="-mt-2 flex items-center gap-2">
+        <p className="text-sm text-slate-400">Esqueceu a senha?</p>
+        <Button
+          variant="link"
+          className="h-auto p-0"
+          onClick={() => router.push("/recover-password")}
+        >
+          Recuperar
+        </Button>
+      </div>
     </>
   );
 }

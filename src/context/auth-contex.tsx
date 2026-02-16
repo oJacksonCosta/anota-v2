@@ -12,8 +12,8 @@ import { User } from "@/types";
 import { sucessToast, errorToast } from "@/lib/toast";
 import mapFirebaseUser from "@/lib/map-firebase-user";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase/firebase-config";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, provider } from "@/firebase/firebase-config";
 
 import { useRouter } from "next/navigation";
 
@@ -21,8 +21,11 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   loginLoading: boolean;
+  googleLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
+  googleLogin: () => Promise<void>;
   logout: () => void;
+  recoverUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,23 +34,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const router = useRouter();
 
-  useEffect(() => {
-    const recoverUser = async () => {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      } else {
-        setUser(null);
-        router.push("/login");
-      }
-      setLoading(false);
-    };
-
-    recoverUser();
-  }, []);
+  // Recupera o usuário do localStorage ao carregar o provedor
+  const recoverUser = async () => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      setUser(null);
+      router.push("/login");
+    }
+    setLoading(false);
+  };
 
   const login = async (email: string, pass: string) => {
     setLoginLoading(true);
@@ -98,6 +99,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const googleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const loggedUser = mapFirebaseUser(userCredential.user);
+
+      localStorage.setItem("user", JSON.stringify(loggedUser));
+      setUser(loggedUser);
+      sucessToast("Login realizado com sucesso");
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
+
+      switch (errorCode) {
+        case "auth/popup-closed-by-user":
+          errorToast("Popup fechado pelo usuário");
+          break;
+        default:
+          errorToast(`Erro ao cadastrar com Google: ${errorMessage}`);
+          break;
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -107,7 +137,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, loginLoading, login, logout }}
+      value={{
+        user,
+        loading,
+        loginLoading,
+        googleLoading,
+        login,
+        googleLogin,
+        logout,
+        recoverUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
