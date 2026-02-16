@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function Register() {
   return (
-    <section className="flex h-full w-full flex-col items-center justify-center gap-4 px-4">
+    <section className="flex h-full w-full flex-col items-center justify-center gap-4">
       <RegisterForm />
     </section>
   );

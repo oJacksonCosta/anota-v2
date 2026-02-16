@@ -1,6 +1,8 @@
 import "./globals.css";
 import { Montserrat } from "next/font/google";
 import { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/context/auth-contex";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -26,7 +28,8 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={`${montserrat.className} h-screen w-screen antialiased`}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

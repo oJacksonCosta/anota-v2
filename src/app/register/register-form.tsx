@@ -11,49 +11,103 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { User } from "@/types";
+import { sucessToast, errorToast } from "@/lib/toast";
+import { auth, provider } from "@/firebase/firebase-config";
+import mapFirebaseUser from "@/lib/map-firebase-user";
 
-import { redirect, RedirectType } from "next/navigation";
-import { auth } from "@/firebase/firebase-config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
+import { useState } from "react";
+
+import { FcGoogle } from "react-icons/fc";
 
 export default function RegisterForm() {
-  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const router = useRouter();
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setRegisterLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const username = formData.get("username") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirm-password") as string;
 
-    const username: string = formData.get("username") as string;
-    const email: string = formData.get("email") as string;
-    const password: string = formData.get("password") as string;
-    const confirmPassword: string = formData.get("confirmPassword") as string;
-
-    if (
-      username === "" ||
-      email === "" ||
-      password === "" ||
-      confirmPassword === ""
-    ) {
-      window.alert("Por favor, preencha todos os campos");
+    if (!username || !email || !password || !confirmPassword) {
+      errorToast("Por favor, preencha todos os campos");
+      setRegisterLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      window.alert("As senhas não são iguais");
+      errorToast("As senhas não coincidem");
+      setRegisterLoading(false);
       return;
     }
 
-    createUserWithEmailAndPassword(auth, email, password as string)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        window.alert(`Usuário ${user} registrado com sucesso!`);
-        redirect("/login", RedirectType.push);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      await updateProfile(user, {
+        displayName: username,
       });
+
+      sucessToast("Conta criada com sucesso!");
+
+      router.push("/login");
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
+
+      switch (errorCode) {
+        case "auth/email-already-in-use":
+          errorToast("Este e-mail já está em uso");
+          break;
+        case "auth/invalid-email":
+          errorToast("O e-mail fornecido é inválido");
+          break;
+        case "auth/password-does-not-meet-requirements":
+          errorToast("A senha deve ter no mínimo 6 caracteres");
+          break;
+        default:
+          errorToast(`Erro ao cadastrar: ${errorMessage}`);
+          break;
+      }
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setGoogleLoading(true);
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = mapFirebaseUser(userCredential.user);
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -73,24 +127,43 @@ export default function RegisterForm() {
           >
             <Input placeholder="João da Silva" type="text" name="username" />
             <Input placeholder="joao@example.com" type="email" name="email" />
-            <Input placeholder="********" type="password" name="password" />
-            <Input placeholder="********" type="password" name="password" />
+            <Input placeholder="******" type="password" name="password" />
+            <Input
+              placeholder="******"
+              type="password"
+              name="confirm-password"
+            />
           </form>
         </CardContent>
         <CardFooter>
           <CardAction>
-            <Button variant="default" type="submit" form="register-form">
-              Registrar
+            <Button
+              variant="default"
+              type="submit"
+              form="register-form"
+              disabled={registerLoading}
+              loading={registerLoading}
+            >
+              {registerLoading ? "Carregando..." : "Registrar"}
             </Button>
           </CardAction>
         </CardFooter>
       </Card>
 
-      <div className="flex items-center">
+      <Button
+        variant="outline"
+        onClick={handleGoogleRegister}
+        disabled={googleLoading}
+      >
+        <FcGoogle /> Entrar com Google
+      </Button>
+
+      <div className="mt-2 flex items-center gap-2">
         <p className="text-sm text-slate-400">Já possui uma conta? </p>
         <Button
           variant="link"
-          onClick={() => redirect("/login", RedirectType.push)}
+          className="h-auto p-0"
+          onClick={() => router.push("/login")}
         >
           Entrar
         </Button>
