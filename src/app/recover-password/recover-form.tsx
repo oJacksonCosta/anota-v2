@@ -11,13 +11,20 @@ import { Button } from "@/components/ui/button";
 
 export default function RecoverForm() {
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
         <CardTitle>Recuperar senha</CardTitle>
         <CardDescription>
           Digite seu email para recuperar sua senha
         </CardDescription>
       </CardHeader>
+
+      <CardContent>
+        <Input placeholder="Email" />
+      </CardContent>
+      <CardAction>
+        <Button>Recuperar senha</Button>
+      </CardAction>
     </Card>
   );
 }
