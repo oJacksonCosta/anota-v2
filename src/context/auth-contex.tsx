@@ -1,19 +1,17 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 import { User } from "@/types";
 import { sucessToast, errorToast } from "@/lib/toast";
 import mapFirebaseUser from "@/lib/map-firebase-user";
 
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider } from "@/firebase/firebase-config";
+import {
+  auth,
+  googleProvider,
+  githubProvider,
+} from "@/firebase/firebase-config";
 
 import { useRouter } from "next/navigation";
 
@@ -22,8 +20,10 @@ interface AuthContextType {
   loading: boolean;
   loginLoading: boolean;
   googleLoading: boolean;
+  githubLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   googleLogin: () => Promise<void>;
+  githubLogin: () => Promise<void>;
   logout: () => void;
   recoverUser: () => void;
 }
@@ -35,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
 
   const router = useRouter();
 
@@ -102,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const googleLogin = async () => {
     setGoogleLoading(true);
     try {
-      const userCredential = await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, googleProvider);
       const loggedUser = mapFirebaseUser(userCredential.user);
 
       localStorage.setItem("user", JSON.stringify(loggedUser));
@@ -120,11 +121,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           errorToast("Popup fechado pelo usuário");
           break;
         default:
-          errorToast(`Erro ao cadastrar com Google: ${errorMessage}`);
+          errorToast(`Erro ao logar com Google: ${errorMessage}`);
           break;
       }
     } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  const githubLogin = async () => {
+    setGithubLoading(true);
+    try {
+      const userCredential = await signInWithPopup(auth, githubProvider);
+      const loggedUser = mapFirebaseUser(userCredential.user);
+
+      localStorage.setItem("user", JSON.stringify(loggedUser));
+      setUser(loggedUser);
+      sucessToast("Login realizado com sucesso");
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error(`Erro ao registrar: ${errorCode} - ${errorMessage}`);
+
+      switch (errorCode) {
+        case "auth/popup-closed-by-user":
+          errorToast("Popup fechado pelo usuário");
+          break;
+        case "auth/account-exists-with-different-credential":
+          errorToast("Já existe uma conta vinculada a esse email");
+          break;
+        default:
+          errorToast(`Erro ao logar com GitHub: ${errorMessage}`);
+          break;
+      }
+    } finally {
+      setGithubLoading(false);
     }
   };
 
@@ -144,6 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         googleLoading,
         login,
         googleLogin,
+        githubLogin,
+        githubLoading,
         logout,
         recoverUser,
       }}

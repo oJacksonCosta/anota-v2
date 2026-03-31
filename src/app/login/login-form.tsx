@@ -14,10 +14,17 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-contex";
 import { useRouter } from "next/navigation";
 
-import { FcGoogle } from "react-icons/fc";
+import { BsGoogle, BsGithub } from "react-icons/bs";
 
 export default function LoginForm() {
-  const { login, loginLoading, googleLogin, googleLoading } = useAuth();
+  const {
+    login,
+    loginLoading,
+    googleLogin,
+    googleLoading,
+    githubLogin,
+    githubLoading,
+  } = useAuth();
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,22 +50,53 @@ export default function LoginForm() {
             id="login-form"
             onSubmit={handleLogin}
           >
-            <Input placeholder="joao@example.com" type="email" name="email" />
-            <Input placeholder="******" type="password" name="password" />
+            <Input
+              placeholder="joao@example.com"
+              type="email"
+              name="email"
+              disabled={loginLoading || googleLoading || githubLoading}
+            />
+            <Input
+              placeholder="******"
+              type="password"
+              name="password"
+              disabled={loginLoading || googleLoading || githubLoading}
+            />
           </form>
         </CardContent>
         <CardFooter>
           <CardAction>
-            <Button variant="default" form="login-form" loading={loginLoading}>
-              Entrar
+            <Button
+              variant="default"
+              form="login-form"
+              loading={loginLoading}
+              disabled={loginLoading || googleLoading || githubLoading}
+            >
+              {loginLoading ? "Entrando..." : "Entrar"}
             </Button>
           </CardAction>
         </CardFooter>
       </Card>
 
-      <Button variant="outline" disabled={googleLoading} onClick={googleLogin}>
-        <FcGoogle /> Entrar com Google
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          disabled={loginLoading || googleLoading || githubLoading}
+          onClick={googleLogin}
+          className="h-8 w-8 rounded-full"
+        >
+          <BsGoogle />
+        </Button>
+
+        <Button
+          variant="outline"
+          disabled={loginLoading || googleLoading || githubLoading}
+          onClick={githubLogin}
+          className="h-8 w-8 rounded-full"
+        >
+          <BsGithub />
+        </Button>
+      </div>
 
       <div className="mt-2 flex items-center gap-2">
         <p className="text-sm text-slate-400">Ainda não possui uma conta?</p>

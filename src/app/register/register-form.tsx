@@ -19,13 +19,13 @@ import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 
-import { FcGoogle } from "react-icons/fc";
+import { BsGoogle, BsGithub } from "react-icons/bs";
 
 export default function RegisterForm() {
   const [registerLoading, setRegisterLoading] = useState(false);
 
   const router = useRouter();
-  const { googleLogin, googleLoading } = useAuth();
+  const { googleLogin, googleLoading, githubLogin, githubLoading } = useAuth();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,13 +103,29 @@ export default function RegisterForm() {
             onSubmit={handleRegister}
             id="register-form"
           >
-            <Input placeholder="João da Silva" type="text" name="username" />
-            <Input placeholder="joao@example.com" type="email" name="email" />
-            <Input placeholder="******" type="password" name="password" />
+            <Input
+              placeholder="João da Silva"
+              type="text"
+              name="username"
+              disabled={registerLoading || googleLoading || githubLoading}
+            />
+            <Input
+              placeholder="joao@example.com"
+              type="email"
+              name="email"
+              disabled={registerLoading || googleLoading || githubLoading}
+            />
+            <Input
+              placeholder="******"
+              type="password"
+              name="password"
+              disabled={registerLoading || googleLoading || githubLoading}
+            />
             <Input
               placeholder="******"
               type="password"
               name="confirm-password"
+              disabled={registerLoading || googleLoading || githubLoading}
             />
           </form>
         </CardContent>
@@ -120,6 +136,7 @@ export default function RegisterForm() {
               type="submit"
               form="register-form"
               loading={registerLoading}
+              disabled={registerLoading || googleLoading || githubLoading}
             >
               {registerLoading ? "Carregando..." : "Registrar"}
             </Button>
@@ -127,9 +144,25 @@ export default function RegisterForm() {
         </CardFooter>
       </Card>
 
-      <Button variant="outline" onClick={googleLogin} disabled={googleLoading}>
-        <FcGoogle /> Entrar com Google
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          onClick={googleLogin}
+          disabled={googleLoading}
+          className="h-8 w-8 rounded-full"
+        >
+          <BsGoogle />
+        </Button>
+
+        <Button
+          variant="outline"
+          onClick={githubLogin}
+          disabled={githubLoading}
+          className="h-8 w-8 rounded-full"
+        >
+          <BsGithub />
+        </Button>
+      </div>
 
       <div className="mt-2 flex items-center gap-2">
         <p className="text-sm text-slate-400">Já possui uma conta? </p>
