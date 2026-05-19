@@ -39,6 +39,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-default: #7580ff;
+  --color-default-hover: #616be3;
+  --color-background-light: #ffffff;
+  --color-background-dark: #151525;
 }
 
 :root {
@@ -74,8 +79,6 @@
   --sidebar-accent-foreground: #171717;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #a1a1a1;
-
-  --default: #9e86ff;
 }
 
 .dark {
