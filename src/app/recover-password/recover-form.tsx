@@ -46,7 +46,12 @@ export default function RecoverForm() {
       </CardContent>
       <CardFooter>
         <CardAction>
-          <Button type="submit">Recuperar senha</Button>
+          <Button
+            type="submit"
+            className="bg-default hover:bg-default-hover cursor-pointer text-white"
+          >
+            Recuperar senha
+          </Button>
         </CardAction>
       </CardFooter>
     </Card>

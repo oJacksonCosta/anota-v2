@@ -137,6 +137,7 @@ export default function RegisterForm() {
               form="register-form"
               loading={registerLoading}
               disabled={registerLoading || googleLoading || githubLoading}
+              className="bg-default hover:bg-default-hover cursor-pointer text-white"
             >
               {registerLoading ? "Carregando..." : "Registrar"}
             </Button>
@@ -165,10 +166,10 @@ export default function RegisterForm() {
       </div>
 
       <div className="mt-2 flex items-center gap-2">
-        <p className="text-sm text-slate-400">Já possui uma conta? </p>
+        <p className="text-sm text-gray-400">Já possui uma conta? </p>
         <Button
           variant="link"
-          className="h-auto p-0"
+          className="h-auto cursor-pointer p-0"
           onClick={() => router.push("/login")}
         >
           Entrar

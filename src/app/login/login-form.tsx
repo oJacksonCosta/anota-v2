@@ -71,6 +71,7 @@ export default function LoginForm() {
               form="login-form"
               loading={loginLoading}
               disabled={loginLoading || googleLoading || githubLoading}
+              className="bg-default hover:bg-default-hover cursor-pointer text-white"
             >
               {loginLoading ? "Entrando..." : "Entrar"}
             </Button>
@@ -99,7 +100,7 @@ export default function LoginForm() {
       </div>
 
       <div className="mt-2 flex items-center gap-2">
-        <p className="text-sm text-slate-400">Ainda não possui uma conta?</p>
+        <p className="text-sm text-gray-400">Ainda não possui uma conta?</p>
         <Button
           variant="link"
           className="h-auto p-0"
@@ -110,7 +111,7 @@ export default function LoginForm() {
       </div>
 
       <div className="-mt-2 flex items-center gap-2">
-        <p className="text-sm text-slate-400">Esqueceu a senha?</p>
+        <p className="text-sm text-gray-400">Esqueceu a senha?</p>
         <Button
           variant="link"
           className="h-auto p-0"

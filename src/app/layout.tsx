@@ -4,7 +4,6 @@ import { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/auth-contex";
 import { ThemeProvider } from "@/context/theme-context";
-import { ThemeApplier } from "@/components/theme-applier";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -28,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <body className={`${montserrat.className} antialiased`}>
+    <html lang="pt-br" suppressHydrationWarning>
+      <body className={`${montserrat.className} antialiased`} suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
